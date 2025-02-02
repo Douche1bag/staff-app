@@ -1,0 +1,84 @@
+/* Table Styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.table th, .table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.table th {
+  background: #f4f4f4;
+}
+
+/* Status Colors */
+.status.delivered {
+  background: #28a745;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.status.process {
+  background: #ffc107;
+  color: black;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.status.canceled {
+  background: #dc3545;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+/* Action Buttons */
+.edit-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  margin-right: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.edit-btn:hover {
+  background: #0056b3;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.delete-btn:hover {
+  background: #b02a37;
+}
+
+/* Pagination */
+.pagination {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.pagination button {
+  margin: 3px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.pagination .active {
+  background: blue;
+  color: white;
+}

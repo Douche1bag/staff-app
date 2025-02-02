@@ -66,13 +66,180 @@
   
   .button {
     padding: 10px 15px;
-    background: blue;
+    background: rgb(130, 130, 130);
     color: white;
     border: none;
     cursor: pointer;
   }
   
   .button:hover {
-    background: darkblue;
+    background: rgb(142, 142, 149);
+  }
+  .login-container {
+    width: 300px;
+    margin: 100px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
   }
   
+  .login-container h1 {
+    margin-bottom: 15px;
+  }
+  
+  .login-container select, .login-container input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .login-container button {
+    padding: 10px;
+    width: 100%;
+    background: rgb(130, 130, 130);
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .login-container button:hover {
+    background: rgb(142, 142, 149);
+  }
+  
+  .logout-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .logout-button:hover {
+    background: darkred;
+  }
+  /* Full viewport height & center everything */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: #f4f4f4;
+}
+
+/* Style the login box */
+.login-box {
+  width: 350px;
+  padding: 25px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(91, 89, 89, 0.1);
+  text-align: center;
+}
+
+/* Adjust text alignment */
+.login-box h1 {
+  font-size: 1.8em;
+  margin-bottom: 15px;
+}
+
+/* Space out form elements */
+.login-box select,
+.login-box input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Login button */
+.login-box button {
+  padding: 12px;
+  width: 100%;
+  background: rgb(130, 130, 130);
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1.1em;
+}
+
+.login-box button:hover {
+  background: rgba(255, 255, 255, 0.29);
+}
+
+/* Fix margin & remove white line */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Stops scrolling */
+  background: #f4f4f4;
+}
+
+/* Centered Login Page */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 95vh; /* Reduce height slightly to move login box up */
+  width: 100vw;
+}
+
+/* Style the login box */
+.login-box {
+  width: 350px;
+  padding: 25px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  top: -20px; /* Move login box slightly up */
+}
+
+/* Quick Links Button Container */
+.quick-links {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  gap: 15px; /* Add spacing between buttons */
+  max-width: 250px; /* Prevent buttons from stretching too wide */
+  margin-top: 20px;
+}
+
+/* Button Styling */
+.quick-links .button {
+  padding: 12px;
+  background: rgb(142, 142, 149);
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1.1em;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+.quick-links .button:hover {
+  background: rgba(255, 255, 255, 0.29);
+}
+
+/* Alert Button */
+.quick-links .button.alert {
+  background: rgb(142, 142, 149);
+}
+
+.quick-links .button.alert:hover {
+  background: rgba(255, 255, 255, 0.29);
+}

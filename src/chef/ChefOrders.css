@@ -1,0 +1,65 @@
+/* Table Styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.table th, .table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.table th {
+  background: #f4f4f4;
+}
+
+/* Status Colors */
+.status.pending {
+  background: #ffc107;
+  color: black;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.status.processing {
+  background: #17a2b8;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.status.completed {
+  background: #28a745;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+/* Complete Button */
+.complete-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.complete-btn:hover {
+  background: #218838;
+}
+
+/* Completed Order Text */
+.completed-text {
+  font-weight: bold;
+  color: green;
+}
+
+/* Disable Editing for Completed Orders */
+input:disabled {
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  cursor: not-allowed;
+}
