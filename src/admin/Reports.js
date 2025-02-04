@@ -3,13 +3,13 @@ import React, { useState } from "react";
 const Reports = () => {
   // Sample reported stock data (Simulating reports from Chefs)
   const [reports, setReports] = useState([
-    { id: 1, ingredient: "Chicken", quantity: 5, date: "2024-02-01" },
-    { id: 2, ingredient: "Carrots", quantity: 2, date: "2024-02-02" },
+    { ingredient: "Chicken", quantity: 5, date: "2024-02-01" },
+    { ingredient: "Carrots", quantity: 2, date: "2024-02-02" },
   ]);
 
   // Function to mark report as resolved
-  const resolveReport = (id) => {
-    setReports(reports.filter(report => report.id !== id));
+  const resolveReport = (ingredient) => {
+    setReports(reports.filter(report => report.ingredient !== ingredient));
   };
 
   return (
@@ -21,7 +21,6 @@ const Reports = () => {
       <table className="table">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Ingredient</th>
             <th>Quantity Left</th>
             <th>Reported Date</th>
@@ -30,14 +29,13 @@ const Reports = () => {
         </thead>
         <tbody>
           {reports.length > 0 ? (
-            reports.map((report) => (
-              <tr key={report.id}>
-                <td>{report.id}</td>
+            reports.map((report, index) => (
+              <tr key={index}>
                 <td>{report.ingredient}</td>
                 <td>{report.quantity} kg</td>
                 <td>{report.date}</td>
                 <td>
-                  <button className="button resolve" onClick={() => resolveReport(report.id)}>
+                  <button className="button resolve" onClick={() => resolveReport(report.ingredient)}>
                     ✅ Resolve
                   </button>
                 </td>
@@ -45,7 +43,7 @@ const Reports = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="5">🎉 No reports! Stock is sufficient.</td>
+              <td colSpan="4">🎉 No reports! Stock is sufficient.</td>
             </tr>
           )}
         </tbody>

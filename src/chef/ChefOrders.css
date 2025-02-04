@@ -16,15 +16,8 @@
 }
 
 /* Status Colors */
-.status.pending {
-  background: #ffc107;
-  color: black;
-  padding: 5px;
-  border-radius: 5px;
-}
-
-.status.processing {
-  background: #17a2b8;
+.status.preparing {
+  background: hsl(53, 98%, 51%);
   color: white;
   padding: 5px;
   border-radius: 5px;

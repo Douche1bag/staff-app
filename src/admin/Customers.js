@@ -1,12 +1,33 @@
 import React, { useState } from "react";
-import "./Customers.css"; // Ensure CSS file is created
+import "./Customers.css"; // Ensure CSS file exists
 
 const Customers = () => {
-  // Sample customer data (Replace with API data)
+  // Sample customer data with multiple pets per customer
   const sampleCustomers = [
-    { id: "C001", name: "Alice Johnson", phone: "111-222-3333", email: "alice@example.com", address: "123 Main St, City" },
-    { id: "C002", name: "Bob Williams", phone: "222-333-4444", email: "bob@example.com", address: "456 Elm St, Town" },
-    { id: "C003", name: "Charlie Brown", phone: "333-444-5555", email: "charlie@example.com", address: "789 Pine St, Village" },
+    { 
+      customerid: "C001", 
+      name: "Alice Johnson", 
+      phone: "111-222-3333", 
+      email: "alice@example.com", 
+      address: "123 Main St, City",
+      pets: ["P001", "P002"] // Multiple pet IDs
+    },
+    { 
+      customerid: "C002", 
+      name: "Bob Williams", 
+      phone: "222-333-4444", 
+      email: "bob@example.com", 
+      address: "456 Elm St, Town",
+      pets: ["P003"]
+    },
+    { 
+      customerid: "C003", 
+      name: "Charlie Brown", 
+      phone: "333-444-5555", 
+      email: "charlie@example.com", 
+      address: "789 Pine St, Village",
+      pets: ["P004", "P005", "P006"]
+    },
   ];
 
   const [customers, setCustomers] = useState(sampleCustomers);
@@ -22,19 +43,19 @@ const Customers = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Edit Customer (Dummy function)
-  const editCustomer = (id) => {
-    alert(`Edit customer ${id} (Feature coming soon!)`);
+  const editCustomer = (customerid) => {
+    alert(`Edit customer ${customerid} (Feature coming soon!)`);
   };
 
   // Delete Customer
-  const deleteCustomer = (id) => {
-    setCustomers(customers.filter(cust => cust.id !== id));
+  const deleteCustomer = (customerid) => {
+    setCustomers(customers.filter(cust => cust.customerid !== customerid));
   };
 
   return (
     <div className="content">
       <h1>🛒 Customer Management</h1>
-      <p>View and manage customers.</p>
+      <p>View and manage customers and their pets.</p>
 
       {/* Customers Table */}
       <table className="table">
@@ -45,20 +66,24 @@ const Customers = () => {
             <th>Phone</th>
             <th>Email</th>
             <th>Address</th>
+            <th>Pet ID(s)</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {currentCustomers.map((customer) => (
-            <tr key={customer.id}>
-              <td>{customer.id}</td>
+            <tr key={customer.customerid}>
+              <td>{customer.customerid}</td>
               <td>{customer.name}</td>
               <td>{customer.phone}</td>
               <td>{customer.email}</td>
               <td>{customer.address}</td>
               <td>
-                <button className="edit-btn" onClick={() => editCustomer(customer.id)}>✏️</button>
-                <button className="delete-btn" onClick={() => deleteCustomer(customer.id)}>🗑️</button>
+                {customer.pets.join(", ")} {/* Display multiple Pet IDs */}
+              </td>
+              <td>
+                <button className="edit-btn" onClick={() => editCustomer(customer.customerid)}>✏️</button>
+                <button className="delete-btn" onClick={() => deleteCustomer(customer.customerid)}>🗑️</button>
               </td>
             </tr>
           ))}

@@ -4,8 +4,8 @@ import "./ChefOrders.css"; // Ensure the CSS file exists
 const ChefOrders = () => {
   // Sample order data (Replace with API data if needed)
   const [orders, setOrders] = useState([
-    { id: 1, customer: "Alice Johnson", menu: "Chicken Rice", madeOn: "2024-01-30", expiry: "2024-02-05", status: "Pending" },
-    { id: 2, customer: "Bob Williams", menu: "Beef Bowl", madeOn: "2024-01-31", expiry: "2024-02-07", status: "Processing" },
+    { id: 1, customer: "Alice Johnson", menu: "Chicken Rice", madeOn: "2024-01-30", expiry: "2024-02-05", status: "Preparing" },
+    { id: 2, customer: "Bob Williams", menu: "Beef Bowl", madeOn: "2024-01-31", expiry: "2024-02-07", status: "Preparing" },
   ]);
 
   // Update order dates
