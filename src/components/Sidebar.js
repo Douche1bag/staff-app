@@ -1,35 +1,67 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import "./Sidebar.css";
 
-const Sidebar = ({ role }) => {
+const Sidebar = () => {
+  const navigate = useNavigate();
+  const role = localStorage.getItem("role");
+  
+  console.log("Sidebar role:", role); // Debug log
+
   const handleLogout = () => {
-    window.location.href = "/login";
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+    navigate("/login");
+    window.location.reload(); // Force reload to clear any state
   };
 
   return (
     <div className="sidebar">
-      <h2>{role === "admin" ? "Admin Panel" : "Chef Panel"}</h2>
-      <ul>
-        {role === "admin" && (
-          <>
-            <li><Link to="/admin/dashboard">📋 Dashboard</Link></li>
-            <li><Link to="/admin/orders">📦 Order Management</Link></li>
-            <li><Link to="/admin/employees">👥 Employee Management</Link></li>
-            <li><Link to="/admin/customers">🛒 Customer Management</Link></li>
-            <li><Link to="/admin/reports">⚠️ Stock Reports</Link></li>
-          </>
-        )}
-
+      <div className="sidebar-header">
+        <h2>Pet Food</h2>
+      </div>
+      <div className="sidebar-nav">
         {role === "chef" && (
           <>
-            <li><Link to="/chef/dashboard">👨‍🍳 Chef Dashboard</Link></li>
-            <li><Link to="/chef/chef-orders">📋 Current Orders</Link></li>
-            <li><Link to="/chef/stock">📊 Stock Overview</Link></li>
+            <button onClick={() => navigate("/chef/dashboard")}>
+              Dashboard
+            </button>
+            <button onClick={() => navigate("/chef/orders")}>
+              Orders
+            </button>
+            <button onClick={() => navigate("/chef/meal-queue")}>
+              Meal Queue
+            </button>
+            <button onClick={() => navigate("/chef/stock")}>
+              Stock
+            </button>
           </>
         )}
-      </ul>
 
-      <button className="logout-button" onClick={handleLogout}>🚪 Logout</button>
+        {role === "admin" && (
+          <>
+            <button onClick={() => navigate("/admin/dashboard")}>
+              Dashboard
+            </button>
+            <button onClick={() => navigate("/admin/orders")}>
+              Orders
+            </button>
+            <button onClick={() => navigate("/admin/employees")}>
+              Employees
+            </button>
+            <button onClick={() => navigate("/admin/customers")}>
+              Customers
+            </button>
+            <button onClick={() => navigate("/admin/reports")}>
+              Reports
+            </button>
+          </>
+        )}
+
+        <button onClick={handleLogout} className="logout-btn">
+          Logout
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,99 +1,189 @@
-import React, { useState } from "react";
-import "./Orders.css"; // Ensure you have this file for styling
+import React, { useEffect, useState } from "react";
+import "./Orders.css";
 
 const Orders = () => {
-  // Sample order data (Replace with API data)
-  const sampleOrders = [
-    { id: "0001", plan: "7 Day", customerid: "C001", petids: "P001", date: "2022-05-13", amount: "Menu1X5, Menu2X2", Menu: "Menu1, Menu2", status: "Delivered" },
-    { id: "0002", plan: "14 Day", customerid: "C001", petids: "P002", date: "2022-05-22", amount: "Menu2X7, Menu4X7", Menu: "Menu2, Menu4", status: "Delivered" },
-    { id: "0003", plan: "7 Day", customerid: "C002", petids: "P004", date: "2022-06-15", amount: "Menu3X7", Menu: "Menu3", status: "Process" },
-    { id: "0004", plan: "28 Day", customerid: "C002", petids: "P005", date: "2022-09-06", amount: "Menu1X14, Menu5X14", Menu: "Menu1, Menu5", status: "Process" },
-    { id: "0005", plan: "7 Day", customerid: "C002", petids: "P006", date: "2022-09-25", amount: "Menu2X7", Menu: "Menu2", status: "Canceled" },
-    { id: "0006", plan: "14 Day", customerid: "C006", petids: "P008", date: "2022-10-04", amount: "Menu3X14", Menu: "Menu3", status: "Delivered" },
-    { id: "0007", plan: "14 Day", customerid: "C007", petids: "P010", date: "2022-10-17", amount: "Menu3X7, Menu2X7", Menu: "Menu3, Menu2", status: "Delivered" },
-    { id: "0008", plan: "28 Day", customerid: "C008", petids: "P011", date: "2022-10-24", amount: "Menu1X14, Menu4X14", Menu: "Menu1, Menu4", status: "Delivered" },
-    { id: "0009", plan: "28 Day", customerid: "C009", petids: "P014", date: "2022-11-01", amount: "Menu1X14, Menu2X14", Menu: "Menu1, Menu2", status: "Canceled" },
-    { id: "0010", plan: "14 Day", customerid: "C010", petids: "P015", date: "2022-11-22", amount: "Menu3X7, Menu4X7", Menu: "Menu3, Menu4", status: "Process" },
-  ];
-
-  const [orders, setOrders] = useState(sampleOrders);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 5;
+
+  // Fetch Orders from API
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/orders");
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      setOrders(data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      setError("Failed to load orders: " + err.message);
+      setLoading(false);
+    }
+  };
+
+  // Update order status
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update order status');
+      
+      // Update local state
+      setOrders(orders.map(order => 
+        order.order_id === orderId 
+          ? { ...order, order_status: newStatus }
+          : order
+      ));
+    } catch (err) {
+      console.error("Error updating order status:", err);
+      alert("Failed to update order status");
+    }
+  };
+
+  // Delete order
+  const handleDeleteOrder = async (orderId) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      try {
+        const response = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
+          method: "DELETE",
+        });
+        
+        if (!response.ok) throw new Error('Failed to delete order');
+        
+        setOrders(orders.filter(order => order.order_id !== orderId));
+      } catch (err) {
+        console.error("Error deleting order:", err);
+        alert("Failed to delete order");
+      }
+    }
+  };
 
   // Pagination logic
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
-
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Edit Order (Dummy function)
-  const editOrder = (id) => {
-    alert(`Edit order ${id} (Feature coming soon!)`);
+  // Helper function to format price
+  const formatPrice = (price) => {
+    try {
+      const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+      return `$${numPrice.toFixed(2)}`;
+    } catch (err) {
+      console.error('Error formatting price:', err);
+      return `$${price}`; // Fallback to display original price
+    }
   };
 
-  // Delete Order
-  const deleteOrder = (id) => {
-    setOrders(orders.filter(order => order.id !== id));
-  };
+  if (loading) return <div className="loading">Loading orders...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
-    <div className="content">
-      <h1>📦 Order Management</h1>
-      <p>View and manage all customer orders.</p>
+    <div className="orders-container">
+      <div className="orders-header">
+        <h1>📦 Order Management</h1>
+        <p>View and manage all customer orders.</p>
+      </div>
 
       {/* Orders Table */}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Plan</th>
-            <th>Customer ID</th>
-            <th>Pet ID</th>
-            <th>Date</th>
-            <th>Menu</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentOrders.map((order) => (
-            <tr key={order.id}>
-              <td>{order.id}</td>
-              <td>{order.plan}</td>
-              <td>{order.customerid}</td>
-              <td>{order.petids}</td>
-              <td>{order.date}</td>
-              <td>{order.Menu}</td>
-              <td>{order.amount}</td>
-              <td className={`status ${order.status.toLowerCase()}`}>{order.status}</td>
-              <td>
-                <button className="edit-btn" onClick={() => editOrder(order.id)}>✏️</button>
-                <button className="delete-btn" onClick={() => deleteOrder(order.id)}>🗑️</button>
-              </td>
+      <div className="table-container">
+        <table className="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Plan</th>
+              <th>Customer</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Date</th>
+              <th>Cook</th>
+              <th>Admin</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentOrders.length > 0 ? (
+              currentOrders.map((order) => (
+                <tr key={order.order_id}>
+                  <td>{order.order_id}</td>
+                  <td>{order.plan}</td>
+                  <td>{order.customer_name}</td>
+                  <td>{order.quantity}</td>
+                  <td>{formatPrice(order.price)}</td>
+                  <td>{new Date(order.date_order).toLocaleDateString()}</td>
+                  <td>{order.cook_name || 'Not assigned'}</td>
+                  <td>{order.admin_name || 'Not assigned'}</td>
+                  <td>
+                    <select
+                      value={order.order_status}
+                      onChange={(e) => handleStatusUpdate(order.order_id, e.target.value)}
+                      className={`status-select ${order.order_status.toLowerCase()}`}
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Cooking">Cooking</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button 
+                      className="delete-btn"
+                      onClick={() => handleDeleteOrder(order.order_id)}
+                      title="Delete Order"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="10" className="no-data">No orders found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination */}
-      <div className="pagination">
-        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-          Previous
-        </button>
-        {[...Array(Math.ceil(orders.length / ordersPerPage)).keys()].map(number => (
-          <button key={number + 1} onClick={() => paginate(number + 1)}
-            className={currentPage === number + 1 ? "active" : ""}>
-            {number + 1}
+      {orders.length > ordersPerPage && (
+        <div className="pagination">
+          <button 
+            onClick={() => paginate(currentPage - 1)} 
+            disabled={currentPage === 1}
+          >
+            Previous
           </button>
-        ))}
-        <button onClick={() => paginate(currentPage + 1)}
-          disabled={currentPage === Math.ceil(orders.length / ordersPerPage)}>
-          Next
-        </button>
-      </div>
+          {[...Array(Math.ceil(orders.length / ordersPerPage))].map((_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={currentPage === index + 1 ? "active" : ""}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button 
+            onClick={() => paginate(currentPage + 1)} 
+            disabled={currentPage === Math.ceil(orders.length / ordersPerPage)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

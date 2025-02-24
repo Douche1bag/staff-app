@@ -56,3 +56,164 @@ input:disabled {
   border: 1px solid #ccc;
   cursor: not-allowed;
 }
+
+.chef-orders-container {
+  padding: 20px;
+  margin-left: 270px; /* sidebar width (250px) + padding */
+  max-width: 1200px;
+}
+
+.chef-orders-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.chef-orders-header h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.chef-orders-header p {
+  color: #7f8c8d;
+}
+
+.table-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.chef-orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.chef-orders-table th,
+.chef-orders-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.chef-orders-table th {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.chef-orders-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Status Select Styles */
+.status-select {
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-size: 14px;
+  width: 120px;
+}
+
+.status-select.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-select.cooking {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status-select.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.complete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.complete-btn:hover {
+  background-color: #d4edda;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #e9ecef;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination button:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Loading and Error States */
+.loading, .error {
+  text-align: center;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 8px;
+}
+
+.loading {
+  color: #666;
+}
+
+.error {
+  color: #dc3545;
+  background-color: #f8d7da;
+}
+
+.no-data {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1024px) {
+  .chef-orders-container {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}

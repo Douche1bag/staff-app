@@ -1,14 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalEmployees: 0,
+    totalCustomers: 0,
+    reportedStock: 0,
+  });
 
-  // Mock data (Replace with API data if needed)
-  const totalOrders = 25;
-  const totalEmployees = 5;
-  const totalCustomers = 150;
-  const reportedStock = 2; // Number of reported low stock items
+  // Fetch Dashboard Stats from API
+  useEffect(() => {
+    fetch("http://localhost:3000/api/admin-dashboard")
+      .then((res) => res.json())
+      .then((data) => setStats(data))
+      .catch((err) => console.error("Error fetching dashboard data:", err));
+  }, []);
 
   return (
     <div className="content">
@@ -18,19 +26,19 @@ const AdminDashboard = () => {
       {/* Dashboard Summary Cards */}
       <div className="dashboard-cards">
         <div className="card">
-          <h3>{totalOrders}</h3>
+          <h3>{stats.totalOrders}</h3>
           <p>Total Orders</p>
         </div>
         <div className="card">
-          <h3>{totalEmployees}</h3>
+          <h3>{stats.totalEmployees}</h3>
           <p>Employees</p>
         </div>
         <div className="card">
-          <h3>{totalCustomers}</h3>
+          <h3>{stats.totalCustomers}</h3>
           <p>Customers</p>
         </div>
         <div className="card alert">
-          <h3>{reportedStock}</h3>
+          <h3>{stats.reportedStock}</h3>
           <p>Stock Alerts</p>
         </div>
       </div>

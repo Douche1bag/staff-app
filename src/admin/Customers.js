@@ -1,38 +1,46 @@
-import React, { useState } from "react";
-import "./Customers.css"; // Ensure CSS file exists
+import React, { useEffect, useState } from "react";
+import "./Customers.css";
 
 const Customers = () => {
-  // Sample customer data with multiple pets per customer
-  const sampleCustomers = [
-    { 
-      customerid: "C001", 
-      name: "Alice Johnson", 
-      phone: "111-222-3333", 
-      email: "alice@example.com", 
-      address: "123 Main St, City",
-      pets: ["P001", "P002"] // Multiple pet IDs
-    },
-    { 
-      customerid: "C002", 
-      name: "Bob Williams", 
-      phone: "222-333-4444", 
-      email: "bob@example.com", 
-      address: "456 Elm St, Town",
-      pets: ["P003"]
-    },
-    { 
-      customerid: "C003", 
-      name: "Charlie Brown", 
-      phone: "333-444-5555", 
-      email: "charlie@example.com", 
-      address: "789 Pine St, Village",
-      pets: ["P004", "P005", "P006"]
-    },
-  ];
-
-  const [customers, setCustomers] = useState(sampleCustomers);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const customersPerPage = 3;
+  const customersPerPage = 5;
+
+  // Fetch Customers & Their Pets from API
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        console.log('Fetching customers...'); // Debug log
+        const response = await fetch("http://localhost:3000/api/customers");
+        console.log('Response:', response); // Debug log
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Received data:', data); // Debug log
+        
+        setCustomers(data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching customers:", err);
+        setError("Failed to load customers: " + err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
+
+  // Debug logs
+  console.log('Current state:', { 
+    customers, 
+    loading, 
+    error, 
+    currentPage 
+  });
 
   // Pagination logic
   const indexOfLastCustomer = currentPage * customersPerPage;
@@ -42,68 +50,116 @@ const Customers = () => {
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Edit Customer (Dummy function)
-  const editCustomer = (customerid) => {
-    alert(`Edit customer ${customerid} (Feature coming soon!)`);
+  // Function to delete customer
+  const deleteCustomer = async (customerId) => {
+    if (window.confirm('Are you sure you want to delete this customer?')) {
+      try {
+        const response = await fetch(`http://localhost:3000/api/customers/${customerId}`, {
+          method: "DELETE",
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete customer');
+        }
+
+        setCustomers(customers.filter((cust) => cust.customer_id !== customerId));
+      } catch (err) {
+        console.error("Error deleting customer:", err);
+        alert("Failed to delete customer");
+      }
+    }
   };
 
-  // Delete Customer
-  const deleteCustomer = (customerid) => {
-    setCustomers(customers.filter(cust => cust.customerid !== customerid));
-  };
+  if (loading) {
+    return <div className="loading">Loading customers...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
 
   return (
-    <div className="content">
-      <h1>🛒 Customer Management</h1>
-      <p>View and manage customers and their pets.</p>
+    <div className="customers-container">
+      <div className="customers-header">
+        <h1>🛒 Customer Management</h1>
+        <p>View and manage customers and their pets.</p>
+      </div>
 
       {/* Customers Table */}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Customer ID</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Address</th>
-            <th>Pet ID(s)</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentCustomers.map((customer) => (
-            <tr key={customer.customerid}>
-              <td>{customer.customerid}</td>
-              <td>{customer.name}</td>
-              <td>{customer.phone}</td>
-              <td>{customer.email}</td>
-              <td>{customer.address}</td>
-              <td>
-                {customer.pets.join(", ")} {/* Display multiple Pet IDs */}
-              </td>
-              <td>
-                <button className="edit-btn" onClick={() => editCustomer(customer.customerid)}>✏️</button>
-                <button className="delete-btn" onClick={() => deleteCustomer(customer.customerid)}>🗑️</button>
-              </td>
+      <div className="table-container">
+        <table className="customers-table">
+          <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>Pet ID(s)</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentCustomers.length > 0 ? (
+              currentCustomers.map((customer) => (
+                <tr key={customer.customer_id}>
+                  <td>{customer.customer_id}</td>
+                  <td>{customer.name}</td>
+                  <td>{customer.mobile_no}</td>
+                  <td>{customer.email}</td>
+                  <td>{customer.address}</td>
+                  <td>
+                    {customer.pets ? customer.pets.join(", ") : "No Pets"}
+                  </td>
+                  <td>
+                    <button 
+                      className="delete-btn"
+                      onClick={() => deleteCustomer(customer.customer_id)}
+                      title="Delete Customer"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="no-data">No customers found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination */}
-      <div className="pagination">
-        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
-        {[...Array(Math.ceil(customers.length / customersPerPage)).keys()].map(number => (
-          <button key={number + 1} onClick={() => paginate(number + 1)}
-            className={currentPage === number + 1 ? "active" : ""}>
-            {number + 1}
+      {customers.length > 0 && (
+        <div className="pagination">
+          <button 
+            onClick={() => paginate(currentPage - 1)} 
+            disabled={currentPage === 1}
+          >
+            Previous
           </button>
-        ))}
-        <button onClick={() => paginate(currentPage + 1)}
-          disabled={currentPage === Math.ceil(customers.length / customersPerPage)}>Next</button>
-      </div>
+          {[...Array(Math.ceil(customers.length / customersPerPage))].map((_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={currentPage === index + 1 ? "active" : ""}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button 
+            onClick={() => paginate(currentPage + 1)} 
+            disabled={currentPage === Math.ceil(customers.length / customersPerPage)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Customers;
+

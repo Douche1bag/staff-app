@@ -1,53 +1,116 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import "./Stock.css";
 
 const Stock = () => {
-  // Sample stock data (Replace with API data if needed)
-  const [stock, setStock] = useState([
-    { id: 1, ingredient: "Chicken", quantity: 5, reported: false },
-    { id: 2, ingredient: "Rice", quantity: 30, reported: false },
-    { id: 3, ingredient: "Carrots", quantity: 2, reported: false },
-  ]);
+  const [ingredients, setIngredients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
 
-  // Function to report low stock to admin
-  const reportToAdmin = (id) => {
-    setStock(stock.map(item => (item.id === id ? { ...item, reported: true } : item)));
-    alert("Stock reported to Admin!"); // Simulating notification
+  useEffect(() => {
+    fetchIngredients();
+  }, []);
+
+  const fetchIngredients = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/chef/ingredients");
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      setIngredients(data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching ingredients:", err);
+      setError("Failed to load ingredients: " + err.message);
+      setLoading(false);
+    }
   };
+
+  const reportLowStock = async (ingredientId, ingredientName) => {
+    try {
+      const userId = JSON.parse(localStorage.getItem('user')).employee_id;
+      const response = await fetch("http://localhost:3000/api/chef/stock-reports", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          employee_reporter_id: userId,
+          ingredient_id: ingredientId,
+          description: `Low stock report for ${ingredientName}`,
+          status: 'Pending'
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to submit report');
+      
+      setSuccess(`Successfully reported low stock for ${ingredientName}`);
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      console.error("Error reporting low stock:", err);
+      setError("Failed to report low stock: " + err.message);
+    }
+  };
+
+  const getStockStatus = (amount) => {
+    if (amount <= 15) return "critical";
+    if (amount <= 25) return "low";
+    return "good";
+  };
+
+  if (loading) return <div className="loading">Loading ingredients...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
     <div className="content">
-      <h1>📊 Stock Overview</h1>
-      <p>Chefs can view stock levels and report low inventory to Admin.</p>
+      <div className="stock-header">
+        <h1>📦 Kitchen Ingredients Stock</h1>
+        <p>Monitor ingredient levels and report low stock</p>
+      </div>
 
-      {/* Stock Table */}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Ingredient</th>
-            <th>Quantity</th>
-            <th>Report</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stock.map((item) => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.ingredient}</td>
-              <td>{item.quantity} kg</td>
-              <td>
-                {item.reported ? (
-                  <span className="reported">✅ Reported</span>
-                ) : (
-                  <button className="button report" onClick={() => reportToAdmin(item.id)}>
-                    ⚠️ Report Low Stock
-                  </button>
-                )}
-              </td>
+      {success && <div className="success-message">{success}</div>}
+
+      <div className="table-container">
+        <table className="ingredients-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ingredient</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Description</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {ingredients.map((ingredient) => {
+              const status = getStockStatus(ingredient.amount);
+              return (
+                <tr key={ingredient.ingredient_id} className={status}>
+                  <td>#{ingredient.ingredient_id}</td>
+                  <td>{ingredient.name}</td>
+                  <td>{ingredient.amount}</td>
+                  <td>
+                    <span className={`status-badge ${status}`}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </span>
+                  </td>
+                  <td className="description-cell">{ingredient.description}</td>
+                  <td>
+                    <button
+                      onClick={() => reportLowStock(ingredient.ingredient_id, ingredient.name)}
+                      className="report-btn"
+                      disabled={status === "good"}
+                      title={status === "good" ? "Stock level is good" : "Report low stock"}
+                    >
+                      Report Low Stock
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
