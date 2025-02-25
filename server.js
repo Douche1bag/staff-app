@@ -428,46 +428,6 @@ app.put('/api/chef/meal-queue/:id', async (req, res) => {
   }
 });
 
-// Update order dates
-app.put('/api/chef/orders/:id/dates', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { made_date, expiry_date } = req.body;
-    
-    let updateFields = [];
-    let values = [id];
-    let valueIndex = 2;
-    
-    if (made_date !== undefined) {
-      updateFields.push(`made_date = $${valueIndex}`);
-      values.push(made_date);
-      valueIndex++;
-    }
-    
-    if (expiry_date !== undefined) {
-      updateFields.push(`expiry_date = $${valueIndex}`);
-      values.push(expiry_date);
-    }
-    
-    const query = `
-      UPDATE Order_Item 
-      SET ${updateFields.join(', ')} 
-      WHERE order_id = $1 
-      RETURNING *
-    `;
-    
-    const result = await pool.query(query, values);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-    
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Database error:', error);
-    res.status(500).json({ error: 'Failed to update order dates' });
-  }
-});
 
 // GET ingredients with their menu relationships
 app.get('/api/chef/ingredients', async (req, res) => {
@@ -612,6 +572,115 @@ app.delete('/api/admin/stock-reports/:id', async (req, res) => {
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ error: 'Failed to solve report' });
+  }
+});
+
+// Get counts for admin dashboard
+app.get('/api/admin/orders/count', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as count FROM Orders');
+    res.json({ count: parseInt(result.rows[0].count) });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Failed to fetch orders count' });
+  }
+});
+
+app.get('/api/admin/employees/count', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as count FROM Employee');
+    res.json({ count: parseInt(result.rows[0].count) });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Failed to fetch employees count' });
+  }
+});
+
+app.get('/api/admin/customers/count', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as count FROM Customer');
+    res.json({ count: parseInt(result.rows[0].count) });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Failed to fetch customers count' });
+  }
+});
+
+app.get('/api/admin/stock-reports/count', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as count FROM Stock_Reports WHERE status = \'Pending\'');
+    res.json({ count: parseInt(result.rows[0].count) });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Failed to fetch stock reports count' });
+  }
+});
+
+// Add new employee
+app.post('/api/employees', async (req, res) => {
+  try {
+    console.log('Received employee data:', req.body); // Debug log
+    
+    const { name, role, mobile_no, email, password } = req.body;
+    
+    const query = `
+      INSERT INTO Employee 
+        (name, role, mobile_no, email, password)
+      VALUES 
+        ($1, $2, $3, $4, $5)
+      RETURNING *;
+    `;
+    
+    console.log('Executing query:', query); // Debug log
+    
+    const result = await pool.query(query, [
+      name,
+      role,
+      mobile_no,
+      email,
+      password
+    ]);
+
+    console.log('Query result:', result.rows[0]); // Debug log
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Detailed database error:', error);
+    res.status(500).json({ 
+      error: 'Failed to add employee',
+      details: error.message
+    });
+  }
+});
+
+// Update employee email
+app.put('/api/employees/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email } = req.body;
+    
+    console.log('Updating email for employee:', id, 'New email:', email); // Debug log
+
+    const query = `
+      UPDATE Employee 
+      SET email = $1
+      WHERE employee_id = $2
+      RETURNING *;
+    `;
+    
+    const result = await pool.query(query, [email, id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    console.log('Updated employee:', result.rows[0]); // Debug log
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ 
+      error: 'Failed to update employee email',
+      details: error.message 
+    });
   }
 });
 

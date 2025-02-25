@@ -5,6 +5,7 @@ const ChefOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     fetchOrders();
@@ -41,9 +42,12 @@ const ChefOrders = () => {
           ? { ...order, [field]: value }
           : order
       ));
+
+      setSuccess("Date updated successfully!");
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       console.error("Error updating order dates:", err);
-      alert("Failed to update order dates");
+      setError("Failed to update order dates: " + err.message);
     }
   };
 
@@ -57,6 +61,8 @@ const ChefOrders = () => {
         <p>Set made and expiry dates for orders</p>
       </div>
 
+      {success && <div className="success-message">{success}</div>}
+
       <div className="table-container">
         <table className="chef-orders-table">
           <thead>
@@ -67,6 +73,7 @@ const ChefOrders = () => {
               <th>Made Date</th>
               <th>Expiry Date</th>
               <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -77,20 +84,52 @@ const ChefOrders = () => {
                   <td>{order.customer_name}</td>
                   <td>{order.plan}</td>
                   <td>
-                    <input
-                      type="date"
-                      value={order.made_date || ''}
-                      onChange={(e) => updateOrderDate(order.order_id, "made_date", e.target.value)}
-                      disabled={order.order_status === "Completed"}
-                    />
+                    <div className="date-field">
+                      <input
+                        type="date"
+                        value={order.made_date || ''}
+                        onChange={(e) => {
+                          const newDate = e.target.value;
+                          setOrders(orders.map(o => 
+                            o.order_id === order.order_id 
+                              ? { ...o, made_date: newDate }
+                              : o
+                          ));
+                        }}
+                        disabled={order.order_status === "Completed"}
+                      />
+                      <button
+                        className="update-btn"
+                        onClick={() => updateOrderDate(order.order_id, "made_date", order.made_date)}
+                        disabled={order.order_status === "Completed"}
+                      >
+                        Update
+                      </button>
+                    </div>
                   </td>
                   <td>
-                    <input
-                      type="date"
-                      value={order.expiry_date || ''}
-                      onChange={(e) => updateOrderDate(order.order_id, "expiry_date", e.target.value)}
-                      disabled={order.order_status === "Completed"}
-                    />
+                    <div className="date-field">
+                      <input
+                        type="date"
+                        value={order.expiry_date || ''}
+                        onChange={(e) => {
+                          const newDate = e.target.value;
+                          setOrders(orders.map(o => 
+                            o.order_id === order.order_id 
+                              ? { ...o, expiry_date: newDate }
+                              : o
+                          ));
+                        }}
+                        disabled={order.order_status === "Completed"}
+                      />
+                      <button
+                        className="update-btn"
+                        onClick={() => updateOrderDate(order.order_id, "expiry_date", order.expiry_date)}
+                        disabled={order.order_status === "Completed"}
+                      >
+                        Update
+                      </button>
+                    </div>
                   </td>
                   <td>
                     <span className={`status-badge ${order.order_status.toLowerCase()}`}>
@@ -101,7 +140,7 @@ const ChefOrders = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="no-data">No orders found.</td>
+                <td colSpan="7" className="no-data">No orders found.</td>
               </tr>
             )}
           </tbody>

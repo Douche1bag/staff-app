@@ -26,9 +26,6 @@ const Sidebar = () => {
             <button onClick={() => navigate("/chef/dashboard")}>
               Dashboard
             </button>
-            <button onClick={() => navigate("/chef/orders")}>
-              Orders
-            </button>
             <button onClick={() => navigate("/chef/meal-queue")}>
               Meal Queue
             </button>

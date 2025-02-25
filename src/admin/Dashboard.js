@@ -10,13 +10,43 @@ const AdminDashboard = () => {
     reportedStock: 0,
   });
 
-  // Fetch Dashboard Stats from API
+  // Fetch Dashboard Stats from API with real-time updates
   useEffect(() => {
-    fetch("http://localhost:3000/api/admin-dashboard")
-      .then((res) => res.json())
-      .then((data) => setStats(data))
-      .catch((err) => console.error("Error fetching dashboard data:", err));
+    fetchDashboardStats(); // Initial fetch
+
+    // Set up interval for real-time updates (every 5 seconds)
+    const interval = setInterval(() => {
+      fetchDashboardStats();
+    }, 5000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const [ordersRes, employeesRes, customersRes, stockRes] = await Promise.all([
+        fetch("http://localhost:3000/api/admin/orders/count"),
+        fetch("http://localhost:3000/api/admin/employees/count"),
+        fetch("http://localhost:3000/api/admin/customers/count"),
+        fetch("http://localhost:3000/api/admin/stock-reports/count")
+      ]);
+
+      const orders = await ordersRes.json();
+      const employees = await employeesRes.json();
+      const customers = await customersRes.json();
+      const stock = await stockRes.json();
+
+      setStats({
+        totalOrders: orders.count,
+        totalEmployees: employees.count,
+        totalCustomers: customers.count,
+        reportedStock: stock.count
+      });
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+    }
+  };
 
   return (
     <div className="content">
@@ -37,7 +67,7 @@ const AdminDashboard = () => {
           <h3>{stats.totalCustomers}</h3>
           <p>Customers</p>
         </div>
-        <div className="card alert">
+        <div className={`card ${stats.reportedStock > 0 ? 'alert' : ''}`}>
           <h3>{stats.reportedStock}</h3>
           <p>Stock Alerts</p>
         </div>
@@ -48,7 +78,9 @@ const AdminDashboard = () => {
         <button className="button" onClick={() => navigate("/admin/orders")}>📦 Manage Orders</button>
         <button className="button" onClick={() => navigate("/admin/employees")}>👥 Manage Employees</button>
         <button className="button" onClick={() => navigate("/admin/customers")}>🛒 View Customers</button>
-        <button className="button alert" onClick={() => navigate("/admin/reports")}>⚠️ View Reports</button>
+        <button className={`button ${stats.reportedStock > 0 ? 'alert' : ''}`} onClick={() => navigate("/admin/reports")}>
+          ⚠️ View Reports {stats.reportedStock > 0 && `(${stats.reportedStock})`}
+        </button>
       </div>
     </div>
   );
