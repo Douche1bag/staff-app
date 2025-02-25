@@ -693,3 +693,26 @@ app.listen(PORT, () => {
     port: process.env.DB_PORT,
   });
 });
+
+// On your backend
+app.get('/api/chef/ingredients-with-reports', async (req, res) => {
+  try {
+    // Get the current user ID (you might get this from the request)
+    const userId = req.user.id;
+    
+    // Query your database to join ingredients with reports
+    const query = `
+      SELECT i.*, 
+             (SELECT COUNT(*) > 0 FROM stock_reports 
+              WHERE ingredient_id = i.ingredient_id AND status = 'Pending') AS isReported
+      FROM ingredients i
+    `;
+    
+    const ingredients = await db.query(query);
+    
+    res.json(ingredients);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});

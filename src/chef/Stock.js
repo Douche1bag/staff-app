@@ -6,9 +6,17 @@ const Stock = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState('');
+  const [currentPage, setCurrentPage] = useState(1); // For pagination
+  const [reportedIngredients, setReportedIngredients] = useState([]); // Track reported ingredients
+  const ingredientsPerPage = 5; // Adjust how many ingredients to show per page
 
   useEffect(() => {
     fetchIngredients();
+    // Load any previously reported ingredients from localStorage
+    const savedReported = localStorage.getItem('reportedIngredients');
+    if (savedReported) {
+      setReportedIngredients(JSON.parse(savedReported));
+    }
   }, []);
 
   const fetchIngredients = async () => {
@@ -43,6 +51,13 @@ const Stock = () => {
 
       if (!response.ok) throw new Error('Failed to submit report');
       
+      // Add the reported ingredient to the reportedIngredients state
+      const updatedReported = [...reportedIngredients, ingredientId];
+      setReportedIngredients(updatedReported);
+      
+      // Save to localStorage for persistence
+      localStorage.setItem('reportedIngredients', JSON.stringify(updatedReported));
+      
       setSuccess(`Successfully reported low stock for ${ingredientName}`);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
@@ -56,6 +71,13 @@ const Stock = () => {
     if (amount <= 25) return "low";
     return "good";
   };
+
+  // Pagination logic
+  const indexOfLastIngredient = currentPage * ingredientsPerPage;
+  const indexOfFirstIngredient = indexOfLastIngredient - ingredientsPerPage;
+  const currentIngredients = ingredients.slice(indexOfFirstIngredient, indexOfLastIngredient);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (loading) return <div className="loading">Loading ingredients...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -82,8 +104,10 @@ const Stock = () => {
             </tr>
           </thead>
           <tbody>
-            {ingredients.map((ingredient) => {
+            {currentIngredients.map((ingredient) => {
               const status = getStockStatus(ingredient.amount);
+              const isReported = reportedIngredients.includes(ingredient.ingredient_id);
+              
               return (
                 <tr key={ingredient.ingredient_id} className={status}>
                   <td>#{ingredient.ingredient_id}</td>
@@ -96,20 +120,39 @@ const Stock = () => {
                   </td>
                   <td className="description-cell">{ingredient.description}</td>
                   <td>
-                    <button
-                      onClick={() => reportLowStock(ingredient.ingredient_id, ingredient.name)}
-                      className="report-btn"
-                      disabled={status === "good"}
-                      title={status === "good" ? "Stock level is good" : "Report low stock"}
-                    >
-                      Report Low Stock
-                    </button>
+                    {isReported ? (
+                      <span className="already-reported">Already Reported</span>
+                    ) : (
+                      <button
+                        onClick={() => reportLowStock(ingredient.ingredient_id, ingredient.name)}
+                        className="report-btn"
+                        disabled={status === "good"}
+                        title={status === "good" ? "Stock level is good" : "Report low stock"}
+                      >
+                        Report Low Stock
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="pagination">
+        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
+        {[...Array(Math.ceil(ingredients.length / ingredientsPerPage)).keys()].map(number => (
+          <button key={number + 1} onClick={() => paginate(number + 1)} 
+            className={currentPage === number + 1 ? "active" : ""}>
+            {number + 1}
+          </button>
+        ))}
+        <button onClick={() => paginate(currentPage + 1)} 
+          disabled={currentPage === Math.ceil(ingredients.length / ingredientsPerPage)}>
+          Next
+        </button>
       </div>
     </div>
   );
